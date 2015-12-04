@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.3 - 2015-11-27 */
+/* oauth-ng - v0.4.3 - 2015-12-04 */
 
 'use strict';
 
@@ -409,7 +409,8 @@ directives.directive('oauth', [
   '$compile',
   '$http',
   '$templateCache',
-  function(AccessToken, Endpoint, Profile, Storage, $location, $rootScope, $compile, $http, $templateCache) {
+  '$uibModal',
+  function(AccessToken, Endpoint, Profile, Storage, $location, $rootScope, $compile, $http, $templateCache, $uibModal) {
 
     var definition = {
       restrict: 'AE',
@@ -493,11 +494,38 @@ directives.directive('oauth', [
         Endpoint.redirect();
       };
 
-      scope.logout = function() {
-        AccessToken.destroy(scope);
-        $rootScope.$broadcast('oauth:logout');
-        loggedOut();
-      };
+      var modalInstance;
+    
+      scope.modallogout = function () {
+
+                    $rootScope.modalMessageHeader = 'Logout of application';
+                    $rootScope.modalMessage = 'Are you sure that you wish to logout?';
+
+                    modalInstance = $uibModal.open({
+                      animation: true,
+                      templateUrl: 'components/modalPopOuts/confirmation.html',
+                      scope: $rootScope
+                    });
+       
+                  };
+
+      scope.logout = function () {
+          if (modalInstance) {
+            modalInstance.close();
+          }
+
+          AccessToken.destroy(scope);
+          $rootScope.$broadcast('oauth:logout');
+          loggedOut();
+        };
+
+      $rootScope.cancel = function () {
+          modalInstance.close();
+        };
+
+      $rootScope.confirm = function () {
+          scope.logout();
+        };
 
       scope.$on('oauth:expired', function() {
         AccessToken.destroy(scope);
