@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.3 - 2015-12-04 */
+/* oauth-ng - v0.4.4 - 2016-01-20 */
 
 'use strict';
 
@@ -427,7 +427,8 @@ directives.directive('oauth', [
         authorizePath: '@', // (optional) authorization url
         state: '@',         // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
         storage: '@',        // (optional) Store token in 'sessionStorage' or 'localStorage', defaults to 'sessionStorage'
-        nonce: '@'          // (optional) Send nonce on auth request
+        nonce: '@',          // (optional) Send nonce on auth request
+        externalValidator: '&'  // (optional) Method to validate against an external condition
       }
     };
 
@@ -492,6 +493,11 @@ directives.directive('oauth', [
 
       scope.login = function() {
         Endpoint.redirect();
+      };
+
+      scope.checkExternalValidator = function () {
+          var validator = scope.externalValidator();
+          return validator == null || validator;
       };
 
       var modalInstance;
