@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.4 - 2016-01-27 */
+/* oauth-ng - v0.4.8 - 2016-01-28 */
 
 'use strict';
 
@@ -496,7 +496,7 @@ directives.directive('oauth', [
       };
 
       scope.executeCustomFunction = function (params) {
-          return scope.customFunction(params);
+          return scope.customFunction({ params: params });
       };
 
       var modalInstance;
