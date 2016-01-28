@@ -99,7 +99,7 @@ directives.directive('oauth', [
       };
 
       scope.executeCustomFunction = function (params) {
-          return scope.customFunction(params);
+          return scope.customFunction({ params: params });
       };
 
       var modalInstance;
