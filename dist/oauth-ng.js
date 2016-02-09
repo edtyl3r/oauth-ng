@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.8 - 2016-01-28 */
+/* oauth-ng - v0.4.8 - 2016-02-09 */
 
 'use strict';
 
@@ -285,12 +285,11 @@ profileClient.factory('Profile', ['$http', 'AccessToken', '$rootScope', function
 
 'use strict';
 
-var storageService = angular.module('oauth.storage', ['ngStorage']);
+var storageService = angular.module('oauth.storage', ['LocalForageModule']);
 
-storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStorage', function($rootScope, $sessionStorage, $localStorage){
+storageService.factory('Storage', ['$rootScope', '$localForage', function($rootScope, $localForage){
 
   var service = {
-    storage: $sessionStorage // By default
   };
 
   /**
@@ -299,7 +298,7 @@ storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStora
    */
   service.delete = function (name) {
     var stored = this.get(name);
-    delete this.storage[name];
+    $localForage.removeItem(name)
     return stored;
   };
 
@@ -307,7 +306,9 @@ storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStora
    * Returns the item from storage
    */
   service.get = function (name) {
-    return this.storage[name];
+    $localForage.getItem(name).then(function(data) {
+           return data;
+       });
   };
 
   /**
@@ -315,23 +316,29 @@ storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStora
    * Returns the item's value
    */
   service.set = function (name, value) {
-    this.storage[name] = value;
-    return this.get(name);
+    $localForage.setItem(name, value).then(function() {
+      return $localForage.getItem(name);
+    });
   };
 
   /**
    * Change the storage service being used
    */
   service.use = function (storage) {
-    if (storage === 'sessionStorage') {
-      this.storage = $sessionStorage;
-    } else if (storage === 'localStorage') {
-      this.storage = $localStorage;
+    if (storage === 'indexDB') {
+      $localForage.setDriver($localForage.INDEXEDDB);
+    }
+    if (storage === 'localStorage') {
+      $localForage.setDriver($localForage.LOCALSTORAGE);
+    }
+    if (storage === 'webSQL') {
+      $localForage.setDriver($localForage.WEBSQL);
     }
   };
 
   return service;
 }]);
+
 'use strict';
 
 var oauthConfigurationService = angular.module('oauth.configuration', []);
